@@ -1,0 +1,74 @@
+<div id="document" class="" style="display:block;">
+  <aside class="column " style="position:fixed; height:100%; background-color: blue;">
+    <div class="container">
+      <button id="addPostBtn" onclick="addPost()">Add Post</button>
+      <button id="saveButton" onclick="saveBlog()">Save Blog (Download Updated Page)</button>
+      <span id="mode" class="icon-mode"></span>
+      <span id="hinted" class="icon-pre disabled" title="Toggle Markdown Hints"></span>
+      <span id="tomd" title="to markdown">MD</span>
+    </div>
+    <div id="articleList">
+    </div>
+  </aside>
+  <div class="column" style="margin-left:200px;">
+    <input id="editorTitle" />
+    <div id="editorContent" data-toggle="pen" data-placeholder="im a placeholder">
+      <h2>Enjoy live editing (+markdown)</h2>
+
+      <p><b><i>Click anywhere to start editing, select and click items on the popup toolbar to toggle effects.</i></b>
+      </p>
+      <hr>
+      <p>Horizontal-Rule can be inserted by click「...」on the toolbar or just type「... 」/「--- 」/「*** 」at the start of a
+        line.
+        Note, the shorthand command should be followed by a SPACE to enable the convert, otherwise, they will just stay
+        what
+        they look like.</p>
+      <hr>
+      <p>To add a link, please type your URL into the input field and hit <i>ENTER/RETURN</i> key. And, a <a
+          href="/sofish">link</a>
+        can be removed by clearing up the input field.
+
+      <p>
+      <ul>
+        <li>Ordered list and unordered list are supported.</li>
+        <li>Use the toolbar or markdown syntax like「<b>1. </b>」,「<b>- </b>」or「<b>* </b>」</li>
+      </ul>
+      <blockquote>You can quote texts by typing「<b>&gt;</b>」at the start of a line.</blockquote>
+      <p>What about add underline to texts? "<u>Stay Hungry, Stay Foolish - <i>Steve Jobs</i></u>".</p>
+      <pre>Code block is also supported by typing 「```」 at the start of a line, don't forget the trailing SPACE.</pre>
+      <p>For more detail, please check out: <a href="https://github.com/sofish/pen#readme"
+          target="_blank">https://github.com/sofish/pen#readme</a>
+      </p>
+    </div>
+  </div>
+</div>
+<div id="database">
+  <article id="someName">
+    <h2>This is an unedited file that exists too</h2>
+
+    <p><b><i>Click anywhere to start editing, select and click items on the popup toolbar to toggle effects.</i></b>
+    </p>
+    <hr>
+    <p>Horizontal-Rule can be inserted by click「...」on the toolbar or just type「... 」/「--- 」/「*** 」at the start of a
+      line.
+      Note, the shorthand command should be followed by a SPACE to enable the convert, otherwise, they will just stay
+      what
+      they look like.</p>
+    <hr>
+    <p>To add a link, please type your URL into the input field and hit <i>ENTER/RETURN</i> key. And, a <a
+        href="/sofish">link</a>
+      can be removed by clearing up the input field.
+
+    <p>
+    <ul>
+      <li>Ordered list and unordered list are supported.</li>
+      <li>Use the toolbar or markdown syntax like「<b>1. </b>」,「<b>- </b>」or「<b>* </b>」</li>
+    </ul>
+    <blockquote>You can quote texts by typing「<b>&gt;</b>」at the start of a line.</blockquote>
+    <p>What about add underline to texts? "<u>Stay Hungry, Stay Foolish - <i>Steve Jobs</i></u>".</p>
+    <pre>Code block is also supported by typing 「```」 at the start of a line, don't forget the trailing SPACE.</pre>
+    <p>For more detail, please check out: <a href="https://github.com/sofish/pen#readme"
+        target="_blank">https://github.com/sofish/pen#readme</a>
+    </p>
+  </article>
+</div>

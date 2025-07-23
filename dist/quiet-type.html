@@ -1,0 +1,2303 @@
+<html lang="en"><!DOCTYPE html><head ><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title >Self-Downloading Blog</title><style >    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    html {
+      /* border-top: 10px #1abf89 solid; */
+      background-color: #f3eded;
+    }
+
+aside
+{
+    position:fixed;
+    width: 200px;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: 1px solid #111;
+}
+
+    .row {
+      display:flex;
+    }
+    #database {
+      display:none;
+    } 
+    #editor {
+      margin: 0 auto;
+      padding: 5% 20px 20px;
+      font-family: Palatino, Optima, Georgia, serif;
+    }
+
+    @media all and (max-width:1024px) {
+      pre a {
+        width: 60%;
+      }
+    }
+
+    small {
+      color: #999;
+    }
+
+    pre {
+      white-space: pre-wrap;
+    }
+
+    #toolbar {
+      margin-bottom: 1em;
+      position: fixed;
+      left: 20px;
+      margin-top: 5px;
+    }
+
+    #toolbar [class^="icon-"]:before,
+    #toolbar [class*=" icon-"]:before {
+      font-family: 'pen'
+    }
+
+    #mode {
+      color: #1abf89;
+      ;
+      cursor: pointer;
+    }
+
+    #mode.disabled {
+      color: #666;
+    }
+
+    #mode:before {
+      content: '\e813';
+    }
+
+    #hinted {
+      color: #1abf89;
+      cursor: pointer;
+    }
+
+    #hinted.disabled {
+      color: #666;
+    }
+
+    #hinted:before {
+      content: '\e816';
+    }
+
+    #tomd {
+      color: #fff;
+      border-radius: 2px;
+      line-height: 1;
+      padding: 1px 3px 0;
+      font-size: 0.8em;
+      background: #000;
+      cursor: pointer;
+    }
+
+    #fork {
+      position: fixed;
+      right: 0;
+      top: 0;
+    }
+
+    /*
+  When the webpage is printed
+  this media query hides extra elements,
+  and makes the text content fit the page.
+  */
+    @media print {
+      #fork,
+      #toolbar {
+        display: none;
+      }
+      body {
+        width: 94%;
+        padding-top: 1em;
+        font-size: 12px;
+      }
+      html {
+        border-top: 0;
+      }
+    }
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #saveButton {
+            background-color: #007bff;
+            margin-top: 20px;
+        }
+        #saveButton:hover {
+            background-color: #0056b3;
+        }
+</style><style >/*! Licensed under MIT, https://github.com/sofish/pen */
+
+/* basic reset */
+.pen, .pen-menu, .pen-input, .pen textarea{font:400 1.16em/1.45 Palatino, Optima, Georgia, serif;color:#331;}
+.pen:focus{outline:none;}
+.pen fieldset, img {border: 0;}
+.pen blockquote{padding-left:10px;margin-left:-14px;border-left:4px solid #1abf89;}
+.pen a{color:#1abf89;}
+.pen del{text-decoration:line-through;}
+.pen sub, .pen sup {font-size:75%;position:relative;vertical-align:text-top;}
+:root .pen sub, :root .pen sup{vertical-align:baseline; /* for ie9 and other mordern browsers */}
+.pen sup {top:-0.5em;}
+.pen sub {bottom:-0.25em;}
+.pen hr{border:none;border-bottom:1px solid #cfcfcf;margin-bottom:25px;*color:pink;*filter:chroma(color=pink);height:10px;*margin:-7px 0 15px;}
+.pen small{font-size:0.8em;color:#888;}
+.pen em, .pen b, .pen strong{font-weight:700;}
+.pen pre{white-space:pre-wrap;padding:0.85em;background:#f8f8f8;}
+
+/* block-level element margin */
+.pen p, .pen pre, .pen ul, .pen ol, .pen dl, .pen form, .pen table, .pen blockquote{margin-bottom:16px;}
+
+/* headers */
+.pen h1, .pen h2, .pen h3, .pen h4, .pen h5, .pen h6{margin-bottom:16px;font-weight:700;line-height:1.2;}
+.pen h1{font-size:2em;}
+.pen h2{font-size:1.8em;}
+.pen h3{font-size:1.6em;}
+.pen h4{font-size:1.4em;}
+.pen h5, .pen h6{font-size:1.2em;}
+
+/* list */
+.pen ul, .pen ol{margin-left:1.2em;}
+.pen ul, .pen-ul{list-style:disc;}
+.pen ol, .pen-ol{list-style:decimal;}
+.pen li ul, .pen li ol, .pen-ul ul, .pen-ul ol, .pen-ol ul, .pen-ol ol{margin:0 2em 0 1.2em;}
+.pen li ul, .pen-ul ul, .pen-ol ul{list-style: circle;}
+
+/* pen menu */
+.pen-menu [class^="icon-"], .pen-menu [class*=" icon-"] {   /* reset to avoid conflicts with Bootstrap */
+  background: transparent;
+  background-image: none;
+}
+.pen-menu { min-width: 320px; }
+.pen-menu, .pen-input{font-size:14px;line-height:1;}
+.pen-menu{white-space:nowrap;box-shadow:1px 2px 3px -2px #222;background:#333;background-image:linear-gradient(to bottom, #222, #333);opacity:0.9;position:fixed;height:36px;border:1px solid #333;border-radius:3px;display:none;z-index:1000;}
+.pen-menu:after {top:100%;border:solid transparent;content:" ";height:0;width:0;position:absolute;pointer-events:none;}
+.pen-menu:after {border-color:rgba(51, 51, 51, 0);border-top-color:#333;border-width:6px;left:50%;margin-left:-6px;}
+.pen-menu-below:after {top: -11px; display:block; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); -ms-transform: rotate(180deg); -o-transform: rotate(180deg); transform: rotate(180deg);}
+.pen-icon{font:normal 900 16px/40px Georgia serif;min-width:20px;display:inline-block;padding:0 10px;height:36px;overflow:hidden;color:#fff;text-align:center;cursor:pointer;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}
+.pen-icon:first-of-type{border-top-left-radius:3px;border-bottom-left-radius:3px;}
+.pen-icon:last-of-type{border-top-right-radius:3px;border-bottom-right-radius:3px;}
+.pen-icon:hover{background:#000;}
+.pen-icon.active{color:#1abf89;background:#000;box-shadow:inset 2px 2px 4px #000;}
+.pen-input{position:absolute;width:100%;left:0;top:0;height:36px;line-height:20px;background:#333;color:#fff;border:none;text-align:center;display:none;font-family:arial, sans-serif;}
+.pen-input:focus{outline:none;}
+
+.pen-textarea{display:block;background:#f8f8f8;padding:20px;}
+.pen textarea{font-size:14px;border:none;background:none;width:100%;_height:200px;min-height:200px;resize:none;}
+
+@font-face {
+    font-family: 'pen';
+    src: url('font/fontello.eot?370dad08');
+    src: url('font/fontello.eot?370dad08#iefix') format('embedded-opentype'),
+    url('font/fontello.woff?370dad08') format('woff'),
+    url('font/fontello.ttf?370dad08') format('truetype'),
+    url('font/fontello.svg?370dad08#fontello') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.pen-menu [class^="icon-"]:before, .pen-menu [class*=" icon-"]:before {
+  font-family: "pen";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1em;
+  margin-left: .2em;
+}
+.pen-menu .icon-location:before { content: '\e815'; } /* '' */
+.pen-menu .icon-fit:before { content: '\e80f'; } /* '' */
+.pen-menu .icon-bold:before { content: '\e805'; } /* '' */
+.pen-menu .icon-italic:before { content: '\e806'; } /* '' */
+.pen-menu .icon-justifyleft:before { content: '\e80a'; } /* '' */
+.pen-menu .icon-justifycenter:before { content: '\e80b'; } /* '' */
+.pen-menu .icon-justifyright:before { content: '\e80c'; } /* '' */
+.pen-menu .icon-justifyfull:before { content: '\e80d'; } /* '' */
+.pen-menu .icon-outdent:before { content: '\e800'; } /* '' */
+.pen-menu .icon-indent:before { content: '\e801'; } /* '' */
+.pen-menu .icon-mode:before { content: '\e813'; } /* '' */
+.pen-menu .icon-fullscreen:before { content: '\e80e'; } /* '' */
+.pen-menu .icon-insertunorderedlist:before { content: '\e802'; } /* '' */
+.pen-menu .icon-insertorderedlist:before { content: '\e803'; } /* '' */
+.pen-menu .icon-strikethrough:before { content: '\e807'; } /* '' */
+.pen-menu .icon-underline:before { content: '\e804'; } /* '' */
+.pen-menu .icon-blockquote:before { content: '\e814'; } /* '' */
+.pen-menu .icon-undo:before { content: '\e817'; } /* '' */
+.pen-menu .icon-code:before { content: '\e816'; } /* '' */
+.pen-menu .icon-pre:before { content: '\e816'; } /* '' */
+.pen-menu .icon-unlink:before { content: '\e811'; } /* '' */
+.pen-menu .icon-superscript:before { content: '\e808'; } /* '' */
+.pen-menu .icon-subscript:before { content: '\e809'; } /* '' */
+.pen-menu .icon-inserthorizontalrule:before { content: '\e818'; } /* '' */
+.pen-menu .icon-pin:before { content: '\e812'; } /* '' */
+.pen-menu .icon-createlink:before { content: '\e810'; } /* '' */
+.pen-menu .icon-h1:before { content: 'H1'; }
+.pen-menu .icon-h2:before { content: 'H2'; }
+.pen-menu .icon-h3:before { content: 'H3'; }
+.pen-menu .icon-h4:before { content: 'H4'; }
+.pen-menu .icon-h5:before { content: 'H5'; }
+.pen-menu .icon-h6:before { content: 'H6'; }
+.pen-menu .icon-p:before { content: 'P'; }
+.pen-menu .icon-insertimage:before { width:1.8em;margin:0;position:relative;top:-2px;content:'IMG';font-size:12px;border:1px solid #fff;padding:2px;border-radius:2px; }
+.pen {
+  position: relative;
+}
+.pen.hinted h1:before,
+.pen.hinted h2:before,
+.pen.hinted h3:before,
+.pen.hinted h4:before,
+.pen.hinted h5:before,
+.pen.hinted h6:before,
+.pen.hinted blockquote:before,
+.pen.hinted hr:before {
+  color: #eee;
+  position: absolute;
+  right: 100%;
+  white-space: nowrap;
+  padding-right: 10px;
+}
+.pen.hinted blockquote {  border-left: 0; margin-left: 0; padding-left: 0; }
+.pen.hinted blockquote:before {
+  color: #1abf89;
+  content: ">";
+  font-weight: bold;
+  vertical-align: center;
+}
+.pen.hinted h1:before { content: "#";}
+.pen.hinted h2:before { content: "##";}
+.pen.hinted h3:before { content: "###";}
+.pen.hinted h4:before { content: "####";}
+.pen.hinted h5:before { content: "#####";}
+.pen.hinted h6:before { content: "######";}
+.pen.hinted hr:before { content: "﹘﹘﹘"; line-height: 1.2; vertical-align: bottom; }
+
+.pen.hinted pre:before, .pen.hinted pre:after {
+  content: "```";
+  display: block;
+  color: #ccc;
+}
+
+.pen.hinted ul { list-style: none; }
+.pen.hinted ul li:before {
+  content: "*";
+  color: #999;
+  line-height: 1;
+  vertical-align: bottom;
+  margin-left: -1.2em;
+  display: inline-block;
+  width: 1.2em;
+}
+
+.pen.hinted b:before, .pen.hinted b:after { content: "**"; color: #eee; font-weight: normal; }
+.pen.hinted i:before, .pen.hinted i:after { content: "*"; color: #eee; }
+
+.pen.hinted a { text-decoration: none; }
+.pen.hinted a:before {content: "["; color: #ddd; }
+.pen.hinted a:after { content: "](" attr(href) ")"; color: #ddd; }
+
+.pen-placeholder:after { position: absolute; top: 0; left: 0; content: attr(data-placeholder); color: #999; cursor: text; }
+</style></head><body ><script id='articleTmpl' type='x-tmpl-mustache'><article style="color: red;" article_title="{{article_title}}">
+  {{article_content}}
+</article>
+</script>
+<script id='articleLiTmpl' type='x-tmpl-mustache'><li article_title="{{article_title}}">
+  <a>{{article_title}}</a> === <a class='delete_btn' onclick="delete_article('{{article_title}}')">delete</a>
+</li>
+</script><div id="document" class="" style="display:block;">
+  <aside class="column " style="position:fixed; height:100%; background-color: blue;">
+    <div class="container">
+      <button id="addPostBtn" onclick="addPost()">Add Post</button>
+      <button id="saveButton" onclick="saveBlog()">Save Blog (Download Updated Page)</button>
+      <span id="mode" class="icon-mode"></span>
+      <span id="hinted" class="icon-pre disabled" title="Toggle Markdown Hints"></span>
+      <span id="tomd" title="to markdown">MD</span>
+    </div>
+    <div id="articleList">
+    </div>
+  </aside>
+  <div class="column" style="margin-left:200px;">
+    <input id="editorTitle" />
+    <div id="editorContent" data-toggle="pen" data-placeholder="im a placeholder">
+      <h2>Enjoy live editing (+markdown)</h2>
+
+      <p><b><i>Click anywhere to start editing, select and click items on the popup toolbar to toggle effects.</i></b>
+      </p>
+      <hr>
+      <p>Horizontal-Rule can be inserted by click「...」on the toolbar or just type「... 」/「--- 」/「*** 」at the start of a
+        line.
+        Note, the shorthand command should be followed by a SPACE to enable the convert, otherwise, they will just stay
+        what
+        they look like.</p>
+      <hr>
+      <p>To add a link, please type your URL into the input field and hit <i>ENTER/RETURN</i> key. And, a <a
+          href="/sofish">link</a>
+        can be removed by clearing up the input field.
+
+      <p>
+      <ul>
+        <li>Ordered list and unordered list are supported.</li>
+        <li>Use the toolbar or markdown syntax like「<b>1. </b>」,「<b>- </b>」or「<b>* </b>」</li>
+      </ul>
+      <blockquote>You can quote texts by typing「<b>&gt;</b>」at the start of a line.</blockquote>
+      <p>What about add underline to texts? "<u>Stay Hungry, Stay Foolish - <i>Steve Jobs</i></u>".</p>
+      <pre>Code block is also supported by typing 「```」 at the start of a line, don't forget the trailing SPACE.</pre>
+      <p>For more detail, please check out: <a href="https://github.com/sofish/pen#readme"
+          target="_blank">https://github.com/sofish/pen#readme</a>
+      </p>
+    </div>
+  </div>
+</div>
+<div id="database">
+  <article id="someName">
+    <h2>This is an unedited file that exists too</h2>
+
+    <p><b><i>Click anywhere to start editing, select and click items on the popup toolbar to toggle effects.</i></b>
+    </p>
+    <hr>
+    <p>Horizontal-Rule can be inserted by click「...」on the toolbar or just type「... 」/「--- 」/「*** 」at the start of a
+      line.
+      Note, the shorthand command should be followed by a SPACE to enable the convert, otherwise, they will just stay
+      what
+      they look like.</p>
+    <hr>
+    <p>To add a link, please type your URL into the input field and hit <i>ENTER/RETURN</i> key. And, a <a
+        href="/sofish">link</a>
+      can be removed by clearing up the input field.
+
+    <p>
+    <ul>
+      <li>Ordered list and unordered list are supported.</li>
+      <li>Use the toolbar or markdown syntax like「<b>1. </b>」,「<b>- </b>」or「<b>* </b>」</li>
+    </ul>
+    <blockquote>You can quote texts by typing「<b>&gt;</b>」at the start of a line.</blockquote>
+    <p>What about add underline to texts? "<u>Stay Hungry, Stay Foolish - <i>Steve Jobs</i></u>".</p>
+    <pre>Code block is also supported by typing 「```」 at the start of a line, don't forget the trailing SPACE.</pre>
+    <p>For more detail, please check out: <a href="https://github.com/sofish/pen#readme"
+        target="_blank">https://github.com/sofish/pen#readme</a>
+    </p>
+  </article>
+</div>
+<script >/*! Licensed under MIT, https://github.com/sofish/pen */
+(function(root, doc) {
+
+  var Pen, debugMode, selection, utils = {};
+  var toString = Object.prototype.toString;
+  var slice = Array.prototype.slice;
+
+  // allow command list
+  var commandsReg = {
+    block: /^(?:p|h[1-6]|blockquote|pre)$/,
+    inline: /^(?:bold|italic|underline|insertorderedlist|insertunorderedlist|indent|outdent)$/,
+    source: /^(?:createlink|unlink)$/,
+    insert: /^(?:inserthorizontalrule|insertimage|insert)$/,
+    wrap: /^(?:code)$/
+  };
+
+  var lineBreakReg = /^(?:blockquote|pre|div)$/i;
+
+  var effectNodeReg = /(?:[pubia]|h[1-6]|blockquote|[uo]l|li)/i;
+
+  var strReg = {
+    whiteSpace: /(^\s+)|(\s+$)/g,
+    mailTo: /^(?!mailto:|.+\/|.+#|.+\?)(.*@.*\..+)$/,
+    http: /^(?!\w+?:\/\/|mailto:|\/|\.\/|\?|#)(.*)$/
+  };
+
+  var autoLinkReg = {
+    url: /((https?|ftp):\/\/|www\.)[^\s<]{3,}/gi,
+    prefix: /^(?:https?|ftp):\/\//i,
+    notLink: /^(?:img|a|input|audio|video|source|code|pre|script|head|title|style)$/i,
+    maxLength: 100
+  };
+
+  // type detect
+  utils.is = function(obj, type) {
+    return toString.call(obj).slice(8, -1) === type;
+  };
+
+  utils.forEach = function(obj, iterator, arrayLike) {
+    if (!obj) return;
+    if (arrayLike == null) arrayLike = utils.is(obj, 'Array');
+    if (arrayLike) {
+      for (var i = 0, l = obj.length; i < l; i++) iterator(obj[i], i, obj);
+    } else {
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) iterator(obj[key], key, obj);
+      }
+    }
+  };
+
+  // copy props from a obj
+  utils.copy = function(defaults, source) {
+    utils.forEach(source, function (value, key) {
+      defaults[key] = utils.is(value, 'Object') ? utils.copy({}, value) :
+        utils.is(value, 'Array') ? utils.copy([], value) : value;
+    });
+    return defaults;
+  };
+
+  // log
+  utils.log = function(message, force) {
+    if (debugMode || force)
+      console.log('%cPEN DEBUGGER: %c' + message, 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
+  };
+
+  utils.delayExec = function (fn) {
+    var timer = null;
+    return function (delay) {
+      clearTimeout(timer);
+      timer = setTimeout(function() {
+        fn();
+      }, delay || 1);
+    };
+  };
+
+  // merge: make it easy to have a fallback
+  utils.merge = function(config) {
+
+    // default settings
+    var defaults = {
+      class: 'pen',
+      debug: false,
+      toolbar: null, // custom toolbar
+      stay: config.stay || !config.debug,
+      stayMsg: 'Are you going to leave here?',
+      textarea: '<textarea name="content"></textarea>',
+      list: [
+        'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+        'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink', 'insertimage'
+      ],
+      titles: {},
+      cleanAttrs: ['id', 'class', 'style', 'name'],
+      cleanTags: ['script'],
+      linksInNewWindow: false
+    };
+
+    // user-friendly config
+    if (config.nodeType === 1) {
+      defaults.editor = config;
+    } else if (config.match && config.match(/^#[\S]+$/)) {
+      defaults.editor = doc.getElementById(config.slice(1));
+    } else {
+      defaults = utils.copy(defaults, config);
+    }
+
+    return defaults;
+  };
+
+  function commandOverall(ctx, cmd, val) {
+    var message = ' to exec 「' + cmd + '」 command' + (val ? (' with value: ' + val) : '');
+
+    try {
+      doc.execCommand(cmd, false, val);
+    } catch(err) {
+      // TODO: there's an error when insert a image to document, but not a bug
+      return utils.log('fail' + message, true);
+    }
+
+    utils.log('success' + message);
+  }
+
+  function commandInsert(ctx, name, val) {
+    var node = getNode(ctx);
+    if (!node) return;
+    ctx._range.selectNode(node);
+    ctx._range.collapse(false);
+
+    // hide menu when a image was inserted
+    if(name === 'insertimage' && ctx._menu) toggleNode(ctx._menu, true);
+
+    return commandOverall(ctx, name, val);
+  }
+
+  function commandBlock(ctx, name) {
+    var list = effectNode(ctx, getNode(ctx), true);
+    if (list.indexOf(name) !== -1) name = 'p';
+    return commandOverall(ctx, 'formatblock', name);
+  }
+
+  function commandWrap(ctx, tag, value) {
+    value = '<' + tag + '>' + (value||selection.toString()) + '</' + tag + '>';
+    return commandOverall(ctx, 'insertHTML', value);
+  }
+
+  function commandLink(ctx, tag, value) {
+    if (ctx.config.linksInNewWindow) {
+      value = '< a href="' + value + '" target="_blank">' + (selection.toString()) + '</a>';
+      return commandOverall(ctx, 'insertHTML', value);
+    } else {
+      return commandOverall(ctx, tag, value);
+    }
+  }
+
+  function initToolbar(ctx) {
+    var icons = '', inputStr = '<input class="pen-input" placeholder="http://" />';
+
+    ctx._toolbar = ctx.config.toolbar;
+    if (!ctx._toolbar) {
+      var toolList = ctx.config.list;
+      utils.forEach(toolList, function (name) {
+        var klass = 'pen-icon icon-' + name;
+        var title = ctx.config.titles[name] || '';
+        icons += '<i class="' + klass + '" data-action="' + name + '" title="' + title + '"></i>';
+      }, true);
+      if (toolList.indexOf('createlink') >= 0 || toolList.indexOf('insertimage') >= 0)
+        icons += inputStr;
+    } else if (ctx._toolbar.querySelectorAll('[data-action=createlink]').length ||
+      ctx._toolbar.querySelectorAll('[data-action=insertimage]').length) {
+      icons += inputStr;
+    }
+
+    if (icons) {
+      ctx._menu = doc.createElement('div');
+      ctx._menu.setAttribute('class', ctx.config.class + '-menu pen-menu');
+      ctx._menu.innerHTML = icons;
+      ctx._inputBar = ctx._menu.querySelector('input');
+      toggleNode(ctx._menu, true);
+      doc.body.appendChild(ctx._menu);
+    }
+    if (ctx._toolbar && ctx._inputBar) toggleNode(ctx._inputBar);
+  }
+
+  function initEvents(ctx) {
+    var toolbar = ctx._toolbar || ctx._menu, editor = ctx.config.editor;
+
+    var toggleMenu = utils.delayExec(function() {
+      ctx.highlight().menu();
+    });
+    var outsideClick = function() {};
+
+    function updateStatus(delay) {
+      ctx._range = ctx.getRange();
+      toggleMenu(delay);
+    }
+
+    if (ctx._menu) {
+      var setpos = function() {
+        if (ctx._menu.style.display === 'block') ctx.menu();
+      };
+
+      // change menu offset when window resize / scroll
+      addListener(ctx, root, 'resize', setpos);
+      addListener(ctx, root, 'scroll', setpos);
+
+      // toggle toolbar on mouse select
+      var selecting = false;
+      addListener(ctx, editor, 'mousedown', function() {
+        selecting = true;
+      });
+      addListener(ctx, editor, 'mouseleave', function() {
+        if (selecting) updateStatus(800);
+        selecting = false;
+      });
+      addListener(ctx, editor, 'mouseup', function() {
+        if (selecting) updateStatus(100);
+        selecting = false;
+      });
+      // Hide menu when focusing outside of editor
+      outsideClick = function(e) {
+        if (ctx._menu && !containsNode(editor, e.target) && !containsNode(ctx._menu, e.target)) {
+          removeListener(ctx, doc, 'click', outsideClick);
+          toggleMenu(100);
+        }
+      };
+    } else {
+      addListener(ctx, editor, 'click', function() {
+        updateStatus(0);
+      });
+    }
+
+    addListener(ctx, editor, 'keyup', function(e) {
+      if (e.which === 8 && ctx.isEmpty()) return lineBreak(ctx, true);
+      // toggle toolbar on key select
+      if (e.which !== 13 || e.shiftKey) return updateStatus(400);
+      var node = getNode(ctx, true);
+      if (!node || !node.nextSibling || !lineBreakReg.test(node.nodeName)) return;
+      if (node.nodeName !== node.nextSibling.nodeName) return;
+      // hack for webkit, make 'enter' behavior like as firefox.
+      if (node.lastChild.nodeName !== 'BR') node.appendChild(doc.createElement('br'));
+      utils.forEach(node.nextSibling.childNodes, function(child) {
+        if (child) node.appendChild(child);
+      }, true);
+      node.parentNode.removeChild(node.nextSibling);
+      focusNode(ctx, node.lastChild, ctx.getRange());
+    });
+
+    // check line break
+    addListener(ctx, editor, 'keydown', function(e) {
+      editor.classList.remove('pen-placeholder');
+      if (e.which !== 13 || e.shiftKey) return;
+      var node = getNode(ctx, true);
+      if (!node || !lineBreakReg.test(node.nodeName)) return;
+      var lastChild = node.lastChild;
+      if (!lastChild || !lastChild.previousSibling) return;
+      if (lastChild.previousSibling.textContent || lastChild.textContent) return;
+      // quit block mode for 2 'enter'
+      e.preventDefault();
+      var p = doc.createElement('p');
+      p.innerHTML = '<br>';
+      node.removeChild(lastChild);
+      if (!node.nextSibling) node.parentNode.appendChild(p);
+      else node.parentNode.insertBefore(p, node.nextSibling);
+      focusNode(ctx, p, ctx.getRange());
+    });
+
+    var menuApply = function(action, value) {
+      ctx.execCommand(action, value);
+      ctx._range = ctx.getRange();
+      ctx.highlight().menu();
+    };
+
+    // toggle toolbar on key select
+    addListener(ctx, toolbar, 'click', function(e) {
+      var node = e.target, action;
+
+      while (node !== toolbar && !(action = node.getAttribute('data-action'))) {
+        node = node.parentNode;
+      }
+
+      if (!action) return;
+      if (!/(?:createlink)|(?:insertimage)/.test(action)) return menuApply(action);
+      if (!ctx._inputBar) return;
+
+      // create link
+      var input = ctx._inputBar;
+      if (toolbar === ctx._menu) toggleNode(input);
+      else {
+        ctx._inputActive = true;
+        ctx.menu();
+      }
+      if (ctx._menu.style.display === 'none') return;
+
+      setTimeout(function() { input.focus(); }, 400);
+      var createlink = function() {
+        var inputValue = input.value;
+
+        if (!inputValue) action = 'unlink';
+        else {
+          inputValue = input.value
+            .replace(strReg.whiteSpace, '')
+            .replace(strReg.mailTo, 'mailto:$1')
+            .replace(strReg.http, 'http://$1');
+        }
+        menuApply(action, inputValue);
+        if (toolbar === ctx._menu) toggleNode(input, false);
+        else toggleNode(ctx._menu, true);
+      };
+
+      input.onkeypress = function(e) {
+        if (e.which === 13) return createlink();
+      };
+
+    });
+
+    // listen for placeholder
+    addListener(ctx, editor, 'focus', function() {
+      if (ctx.isEmpty()) lineBreak(ctx, true);
+      addListener(ctx, doc, 'click', outsideClick);
+    });
+
+    addListener(ctx, editor, 'blur', function() {
+      checkPlaceholder(ctx);
+      ctx.checkContentChange();
+    });
+
+    // listen for paste and clear style
+    addListener(ctx, editor, 'paste', function() {
+      setTimeout(function() {
+        ctx.cleanContent();
+      });
+    });
+  }
+
+  function addListener(ctx, target, type, listener) {
+    if (ctx._events.hasOwnProperty(type)) {
+      ctx._events[type].push(listener);
+    } else {
+      ctx._eventTargets = ctx._eventTargets || [];
+      ctx._eventsCache = ctx._eventsCache || [];
+      var index = ctx._eventTargets.indexOf(target);
+      if (index < 0) index = ctx._eventTargets.push(target) - 1;
+      ctx._eventsCache[index] = ctx._eventsCache[index] || {};
+      ctx._eventsCache[index][type] = ctx._eventsCache[index][type] || [];
+      ctx._eventsCache[index][type].push(listener);
+
+      target.addEventListener(type, listener, false);
+    }
+    return ctx;
+  }
+
+  // trigger local events
+  function triggerListener(ctx, type) {
+    if (!ctx._events.hasOwnProperty(type)) return;
+    var args = slice.call(arguments, 2);
+    utils.forEach(ctx._events[type], function (listener) {
+      listener.apply(ctx, args);
+    });
+  }
+
+  function removeListener(ctx, target, type, listener) {
+    var events = ctx._events[type];
+    if (!events) {
+      var _index = ctx._eventTargets.indexOf(target);
+      if (_index >= 0) events = ctx._eventsCache[_index][type];
+    }
+    if (!events) return ctx;
+    var index = events.indexOf(listener);
+    if (index >= 0) events.splice(index, 1);
+    target.removeEventListener(type, listener, false);
+    return ctx;
+  }
+
+  function removeAllListeners(ctx) {
+    utils.forEach(this._events, function (events) {
+      events.length = 0;
+    }, false);
+    if (!ctx._eventsCache) return ctx;
+    utils.forEach(ctx._eventsCache, function (events, index) {
+      var target = ctx._eventTargets[index];
+      utils.forEach(events, function (listeners, type) {
+        utils.forEach(listeners, function (listener) {
+          target.removeEventListener(type, listener, false);
+        }, true);
+      }, false);
+    }, true);
+    ctx._eventTargets = [];
+    ctx._eventsCache = [];
+    return ctx;
+  }
+
+  function checkPlaceholder(ctx) {
+    ctx.config.editor.classList[ctx.isEmpty() ? 'add' : 'remove']('pen-placeholder');
+  }
+
+  function trim(str) {
+    return (str || '').replace(/^\s+|\s+$/g, '');
+  }
+
+  // node.contains is not implemented in IE10/IE11
+  function containsNode(parent, child) {
+    if (parent === child) return true;
+    child = child.parentNode;
+    while (child) {
+      if (child === parent) return true;
+      child = child.parentNode;
+    }
+    return false;
+  }
+
+  function getNode(ctx, byRoot) {
+    var node, root = ctx.config.editor;
+    ctx._range = ctx._range || ctx.getRange();
+    node = ctx._range.commonAncestorContainer;
+    if (!node || node === root) return null;
+    while (node && (node.nodeType !== 1) && (node.parentNode !== root)) node = node.parentNode;
+    while (node && byRoot && (node.parentNode !== root)) node = node.parentNode;
+    return containsNode(root, node) ? node : null;
+  }
+
+  // node effects
+  function effectNode(ctx, el, returnAsNodeName) {
+    var nodes = [];
+    el = el || ctx.config.editor;
+    while (el && el !== ctx.config.editor) {
+      if (el.nodeName.match(effectNodeReg)) {
+        nodes.push(returnAsNodeName ? el.nodeName.toLowerCase() : el);
+      }
+      el = el.parentNode;
+    }
+    return nodes;
+  }
+
+  // breakout from node
+  function lineBreak(ctx, empty) {
+    var range = ctx._range = ctx.getRange(), node = doc.createElement('p');
+    if (empty) ctx.config.editor.innerHTML = '';
+    node.innerHTML = '<br>';
+    range.insertNode(node);
+    focusNode(ctx, node.childNodes[0], range);
+  }
+
+  function focusNode(ctx, node, range) {
+    range.setStartAfter(node);
+    range.setEndBefore(node);
+    range.collapse(false);
+    ctx.setRange(range);
+  }
+
+  function autoLink(node) {
+    if (node.nodeType === 1) {
+      if (autoLinkReg.notLink.test(node.tagName)) return;
+      utils.forEach(node.childNodes, function (child) {
+        autoLink(child);
+      }, true);
+    } else if (node.nodeType === 3) {
+      var result = urlToLink(node.nodeValue || '');
+      if (!result.links) return;
+      var frag = doc.createDocumentFragment(),
+        div = doc.createElement('div');
+      div.innerHTML = result.text;
+      while (div.childNodes.length) frag.appendChild(div.childNodes[0]);
+      node.parentNode.replaceChild(frag, node);
+    }
+  }
+
+  function urlToLink(str) {
+    var count = 0;
+    str = str.replace(autoLinkReg.url, function(url) {
+      var realUrl = url, displayUrl = url;
+      count++;
+      if (url.length > autoLinkReg.maxLength) displayUrl = url.slice(0, autoLinkReg.maxLength) + '...';
+      // Add http prefix if necessary
+      if (!autoLinkReg.prefix.test(realUrl)) realUrl = 'http://' + realUrl;
+      return '<a href="' + realUrl + '">' + displayUrl + '</a>';
+    });
+    return {links: count, text: str};
+  }
+
+  function toggleNode(node, hide) {
+    node.style.display = hide ? 'none' : 'block';
+  }
+
+  Pen = function(config) {
+
+    if (!config) throw new Error('Can\'t find config');
+
+    debugMode = config.debug;
+
+    // merge user config
+    var defaults = utils.merge(config);
+
+    var editor = defaults.editor;
+
+    if (!editor || editor.nodeType !== 1) throw new Error('Can\'t find editor');
+
+    // set default class
+    editor.classList.add(defaults.class);
+
+    // set contenteditable
+    editor.setAttribute('contenteditable', 'true');
+
+    // assign config
+    this.config = defaults;
+
+    // set placeholder
+    if (defaults.placeholder) editor.setAttribute('data-placeholder', defaults.placeholder);
+    checkPlaceholder(this);
+
+    // save the selection obj
+    this.selection = selection;
+
+    // define local events
+    this._events = {change: []};
+
+    // enable toolbar
+    initToolbar(this);
+
+    // init events
+    initEvents(this);
+
+    // to check content change
+    this._prevContent = this.getContent();
+
+    // enable markdown covert
+    if (this.markdown) this.markdown.init(this);
+
+    // stay on the page
+    if (this.config.stay) this.stay(this.config);
+
+    if(this.config.input) {
+      this.addOnSubmitListener(this.config.input);
+    }
+  };
+
+  Pen.prototype.on = function(type, listener) {
+    addListener(this, this.config.editor, type, listener);
+    return this;
+  };
+
+  Pen.prototype.addOnSubmitListener = function(inputElement) {
+    var form = inputElement.form;
+    var me = this;
+    form.addEventListener("submit", function() {
+      inputElement.value = me.config.saveAsMarkdown ? me.toMd(me.config.editor.innerHTML) : me.config.editor.innerHTML;
+    });
+  };
+
+  Pen.prototype.isEmpty = function(node) {
+    node = node || this.config.editor;
+    return !(node.querySelector('img')) && !(node.querySelector('blockquote')) &&
+      !(node.querySelector('li')) && !trim(node.textContent);
+  };
+
+  Pen.prototype.getContent = function() {
+    return this.isEmpty() ?  '' : trim(this.config.editor.innerHTML);
+  };
+
+  Pen.prototype.setContent = function(html) {
+    this.config.editor.innerHTML = html;
+    this.cleanContent();
+    return this;
+  };
+
+  Pen.prototype.checkContentChange = function () {
+    var prevContent = this._prevContent, currentContent = this.getContent();
+    if (prevContent === currentContent) return;
+    this._prevContent = currentContent;
+    triggerListener(this, 'change', currentContent, prevContent);
+  };
+
+  Pen.prototype.getRange = function() {
+    var editor = this.config.editor, range = selection.rangeCount && selection.getRangeAt(0);
+    if (!range) range = doc.createRange();
+    if (!containsNode(editor, range.commonAncestorContainer)) {
+      range.selectNodeContents(editor);
+      range.collapse(false);
+    }
+    return range;
+  };
+
+  Pen.prototype.setRange = function(range) {
+    range = range || this._range;
+    if (!range) {
+      range = this.getRange();
+      range.collapse(false); // set to end
+    }
+    try {
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } catch (e) {/* IE throws error sometimes*/}
+    return this;
+  };
+
+  Pen.prototype.focus = function(focusStart) {
+    if (!focusStart) this.setRange();
+    this.config.editor.focus();
+    return this;
+  };
+
+  Pen.prototype.execCommand = function(name, value) {
+    name = name.toLowerCase();
+    this.setRange();
+
+    if (commandsReg.block.test(name)) {
+      commandBlock(this, name);
+    } else if (commandsReg.inline.test(name)) {
+      commandOverall(this, name, value);
+    } else if (commandsReg.source.test(name)) {
+      commandLink(this, name, value);
+    } else if (commandsReg.insert.test(name)) {
+      commandInsert(this, name, value);
+    } else if (commandsReg.wrap.test(name)) {
+      commandWrap(this, name, value);
+    } else {
+      utils.log('can not find command function for name: ' + name + (value ? (', value: ' + value) : ''), true);
+    }
+    if (name === 'indent') this.checkContentChange();
+    else this.cleanContent({cleanAttrs: ['style']});
+  };
+
+  // remove attrs and tags
+  // pen.cleanContent({cleanAttrs: ['style'], cleanTags: ['id']})
+  Pen.prototype.cleanContent = function(options) {
+    var editor = this.config.editor;
+
+    if (!options) options = this.config;
+    utils.forEach(options.cleanAttrs, function (attr) {
+      utils.forEach(editor.querySelectorAll('[' + attr + ']'), function(item) {
+        item.removeAttribute(attr);
+      }, true);
+    }, true);
+    utils.forEach(options.cleanTags, function (tag) {
+      utils.forEach(editor.querySelectorAll(tag), function(item) {
+        item.parentNode.removeChild(item);
+      }, true);
+    }, true);
+
+    checkPlaceholder(this);
+    this.checkContentChange();
+    return this;
+  };
+
+  // auto link content, return content
+  Pen.prototype.autoLink = function() {
+    autoLink(this.config.editor);
+    return this.getContent();
+  };
+
+  // highlight menu
+  Pen.prototype.highlight = function() {
+    var toolbar = this._toolbar || this._menu
+      , node = getNode(this);
+    // remove all highlights
+    utils.forEach(toolbar.querySelectorAll('.active'), function(el) {
+      el.classList.remove('active');
+    }, true);
+
+    if (!node) return this;
+
+    var effects = effectNode(this, node)
+      , inputBar = this._inputBar
+      , highlight;
+
+    if (inputBar && toolbar === this._menu) {
+      // display link input if createlink enabled
+      inputBar.style.display = 'none';
+      // reset link input value
+      inputBar.value = '';
+    }
+
+    highlight = function(str) {
+      if (!str) return;
+      var el = toolbar.querySelector('[data-action=' + str + ']');
+      return el && el.classList.add('active');
+    };
+    utils.forEach(effects, function(item) {
+      var tag = item.nodeName.toLowerCase();
+      switch(tag) {
+        case 'a':
+          if (inputBar) inputBar.value = item.getAttribute('href');
+          tag = 'createlink';
+          break;
+        case 'img':
+          if (inputBar) inputBar.value = item.getAttribute('src');
+          tag = 'insertimage';
+          break;
+        case 'i':
+          tag = 'italic';
+          break;
+        case 'u':
+          tag = 'underline';
+          break;
+        case 'b':
+          tag = 'bold';
+          break;
+        case 'pre':
+        case 'code':
+          tag = 'code';
+          break;
+        case 'ul':
+          tag = 'insertunorderedlist';
+          break;
+        case 'ol':
+          tag = 'insertorderedlist';
+          break;
+        case 'li':
+          tag = 'indent';
+          break;
+      }
+      highlight(tag);
+    }, true);
+
+    return this;
+  };
+
+  // show menu
+  Pen.prototype.menu = function() {
+    if (!this._menu) return this;
+    if (selection.isCollapsed) {
+      this._menu.style.display = 'none'; //hide menu
+      this._inputActive = false;
+      return this;
+    }
+    if (this._toolbar) {
+      if (!this._inputBar || !this._inputActive) return this;
+    }
+    var offset = this._range.getBoundingClientRect()
+      , menuPadding = 10
+      , top = offset.top - menuPadding
+      , left = offset.left + (offset.width / 2)
+      , menu = this._menu
+      , menuOffset = {x: 0, y: 0}
+      , stylesheet = this._stylesheet;
+
+    // fixes some browser double click visual discontinuity
+    // if the offset has no width or height it should not be used
+    if (offset.width === 0 && offset.height === 0) return this;
+
+    // store the stylesheet used for positioning the menu horizontally
+    if (this._stylesheet === undefined) {
+      var style = document.createElement("style");
+      document.head.appendChild(style);
+      this._stylesheet = stylesheet = style.sheet;
+    }
+    // display block to caculate its width & height
+    menu.style.display = 'block';
+
+    menuOffset.x = left - (menu.clientWidth / 2);
+    menuOffset.y = top - menu.clientHeight;
+
+    // check to see if menu has over-extended its bounding box. if it has,
+    // 1) apply a new class if overflowed on top;
+    // 2) apply a new rule if overflowed on the left
+    if (stylesheet.cssRules.length > 0) {
+      stylesheet.deleteRule(0);
+    }
+    if (menuOffset.x < 0) {
+      menuOffset.x = 0;
+      stylesheet.insertRule('.pen-menu:after {left: ' + left + 'px;}', 0);
+    } else {
+      stylesheet.insertRule('.pen-menu:after {left: 50%; }', 0);
+    }
+    if (menuOffset.y < 0) {
+      menu.classList.add('pen-menu-below');
+      menuOffset.y = offset.top + offset.height + menuPadding;
+    } else {
+      menu.classList.remove('pen-menu-below');
+    }
+
+    menu.style.top = menuOffset.y + 'px';
+    menu.style.left = menuOffset.x + 'px';
+    return this;
+  };
+
+  Pen.prototype.stay = function(config) {
+    var ctx = this;
+    if (!window.onbeforeunload) {
+      window.onbeforeunload = function() {
+        if (!ctx._isDestroyed) return config.stayMsg;
+      };
+    }
+  };
+
+  Pen.prototype.destroy = function(isAJoke) {
+    var destroy = isAJoke ? false : true
+      , attr = isAJoke ? 'setAttribute' : 'removeAttribute';
+
+    if (!isAJoke) {
+      removeAllListeners(this);
+      try {
+        selection.removeAllRanges();
+        if (this._menu) this._menu.parentNode.removeChild(this._menu);
+      } catch (e) {/* IE throws error sometimes*/}
+    } else {
+      initToolbar(this);
+      initEvents(this);
+    }
+    this._isDestroyed = destroy;
+    this.config.editor[attr]('contenteditable', '');
+
+    return this;
+  };
+
+  Pen.prototype.rebuild = function() {
+    return this.destroy('it\'s a joke');
+  };
+
+  // a fallback for old browers
+  root.Pen = function(config) {
+    if (!config) return utils.log('can\'t find config', true);
+
+    var defaults = utils.merge(config)
+      , klass = defaults.editor.getAttribute('class');
+
+    klass = klass ? klass.replace(/\bpen\b/g, '') + ' pen-textarea ' + defaults.class : 'pen pen-textarea';
+    defaults.editor.setAttribute('class', klass);
+    defaults.editor.innerHTML = defaults.textarea;
+    return defaults.editor;
+  };
+
+  // export content as markdown
+  var regs = {
+    a: [/<a\b[^>]*href=["']([^"]+|[^']+)\b[^>]*>(.*?)<\/a>/ig, '[$2]($1)'],
+    img: [/<img\b[^>]*src=["']([^\"+|[^']+)[^>]*>/ig, '![]($1)'],
+    b: [/<b\b[^>]*>(.*?)<\/b>/ig, '**$1**'],
+    i: [/<i\b[^>]*>(.*?)<\/i>/ig, '***$1***'],
+    h: [/<h([1-6])\b[^>]*>(.*?)<\/h\1>/ig, function(a, b, c) {
+      return '\n' + ('######'.slice(0, b)) + ' ' + c + '\n';
+    }],
+    li: [/<(li)\b[^>]*>(.*?)<\/\1>/ig, '* $2\n'],
+    blockquote: [/<(blockquote)\b[^>]*>(.*?)<\/\1>/ig, '\n> $2\n'],
+    pre: [/<pre\b[^>]*>(.*?)<\/pre>/ig, '\n```\n$1\n```\n'],
+    code: [/<code\b[^>]*>(.*?)<\/code>/ig, '\n`\n$1\n`\n'],
+    p: [/<p\b[^>]*>(.*?)<\/p>/ig, '\n$1\n'],
+    hr: [/<hr\b[^>]*>/ig, '\n---\n']
+  };
+
+  Pen.prototype.toMd = function() {
+    var html = this.getContent()
+          .replace(/\n+/g, '') // remove line break
+          .replace(/<([uo])l\b[^>]*>(.*?)<\/\1l>/ig, '$2'); // remove ul/ol
+
+    for(var p in regs) {
+      if (regs.hasOwnProperty(p))
+        html = html.replace.apply(html, regs[p]);
+    }
+    return html.replace(/\*{5}/g, '**');
+  };
+
+  // make it accessible
+  if (doc.getSelection) {
+    selection = doc.getSelection();
+    root.Pen = Pen;
+  }
+
+}(window, document));
+</script><script >/*! Licensed under MIT, https://github.com/sofish/pen */
+(function(root) {
+
+  // only works with Pen
+  if(!root.Pen) return;
+
+  // markdown covertor obj
+  var covertor = {
+    keymap: { '96': '`', '62': '>', '49': '1', '46': '.', '45': '-', '42': '*', '35': '#'},
+    stack : []
+  };
+
+  // return valid markdown syntax
+  covertor.valid = function(str) {
+    var len = str.length;
+
+    if(str.match(/[#]{1,6}/)) {
+      return ['h' + len, len];
+    } else if(str === '```') {
+      return ['pre', len];
+    } else if(str === '>') {
+      return ['blockquote', len];
+    } else if(str === '1.') {
+      return ['insertorderedlist', len];
+    } else if(str === '-' || str === '*') {
+      return ['insertunorderedlist', len];
+    } else if(str.match(/(?:\.|\*|\-){3,}/)) {
+      return ['inserthorizontalrule', len];
+    }
+  };
+
+  // parse command
+  covertor.parse = function(e) {
+    var code = e.keyCode || e.which;
+
+    // when `space` is pressed
+    if (code === 32) {
+      var markdownSyntax = this.stack.join('');
+      // reset stack
+      this.stack = [];
+
+      var cmd = this.valid(markdownSyntax);
+      if (cmd) {
+        // prevents leading space after executing command
+        e.preventDefault();
+        return cmd;
+      }
+    }
+
+    // make cmd
+    if(this.keymap[code]) this.stack.push(this.keymap[code]);
+
+    return false;
+  };
+
+  // exec command
+  covertor.action = function(pen, cmd) {
+
+    // only apply effect at line start
+    if(pen.selection.focusOffset > cmd[1]) return;
+
+    var node = pen.selection.focusNode;
+    node.textContent = node.textContent.slice(cmd[1]);
+    pen.execCommand(cmd[0]);
+  };
+
+  // init covertor
+  covertor.init = function(pen) {
+    pen.on('keypress', function(e) {
+      var cmd = covertor.parse(e);
+      if(cmd) return covertor.action(pen, cmd);
+    });
+  };
+
+  // append to Pen
+  root.Pen.prototype.markdown = covertor;
+
+}(window));
+</script><script >(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.Mustache = factory());
+}(this, (function () { 'use strict';
+
+  /*!
+   * mustache.js - Logic-less {{mustache}} templates with JavaScript
+   * http://github.com/janl/mustache.js
+   */
+
+  var objectToString = Object.prototype.toString;
+  var isArray = Array.isArray || function isArrayPolyfill (object) {
+    return objectToString.call(object) === '[object Array]';
+  };
+
+  function isFunction (object) {
+    return typeof object === 'function';
+  }
+
+  /**
+   * More correct typeof string handling array
+   * which normally returns typeof 'object'
+   */
+  function typeStr (obj) {
+    return isArray(obj) ? 'array' : typeof obj;
+  }
+
+  function escapeRegExp (string) {
+    return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+  }
+
+  /**
+   * Null safe way of checking whether or not an object,
+   * including its prototype, has a given property
+   */
+  function hasProperty (obj, propName) {
+    return obj != null && typeof obj === 'object' && (propName in obj);
+  }
+
+  /**
+   * Safe way of detecting whether or not the given thing is a primitive and
+   * whether it has the given property
+   */
+  function primitiveHasOwnProperty (primitive, propName) {
+    return (
+      primitive != null
+      && typeof primitive !== 'object'
+      && primitive.hasOwnProperty
+      && primitive.hasOwnProperty(propName)
+    );
+  }
+
+  // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
+  // See https://github.com/janl/mustache.js/issues/189
+  var regExpTest = RegExp.prototype.test;
+  function testRegExp (re, string) {
+    return regExpTest.call(re, string);
+  }
+
+  var nonSpaceRe = /\S/;
+  function isWhitespace (string) {
+    return !testRegExp(nonSpaceRe, string);
+  }
+
+  var entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;'
+  };
+
+  function escapeHtml (string) {
+    return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap (s) {
+      return entityMap[s];
+    });
+  }
+
+  var whiteRe = /\s*/;
+  var spaceRe = /\s+/;
+  var equalsRe = /\s*=/;
+  var curlyRe = /\s*\}/;
+  var tagRe = /#|\^|\/|>|\{|&|=|!/;
+
+  /**
+   * Breaks up the given `template` string into a tree of tokens. If the `tags`
+   * argument is given here it must be an array with two string values: the
+   * opening and closing tags used in the template (e.g. [ "<%", "%>" ]). Of
+   * course, the default is to use mustaches (i.e. mustache.tags).
+   *
+   * A token is an array with at least 4 elements. The first element is the
+   * mustache symbol that was used inside the tag, e.g. "#" or "&". If the tag
+   * did not contain a symbol (i.e. {{myValue}}) this element is "name". For
+   * all text that appears outside a symbol this element is "text".
+   *
+   * The second element of a token is its "value". For mustache tags this is
+   * whatever else was inside the tag besides the opening symbol. For text tokens
+   * this is the text itself.
+   *
+   * The third and fourth elements of the token are the start and end indices,
+   * respectively, of the token in the original template.
+   *
+   * Tokens that are the root node of a subtree contain two more elements: 1) an
+   * array of tokens in the subtree and 2) the index in the original template at
+   * which the closing tag for that section begins.
+   *
+   * Tokens for partials also contain two more elements: 1) a string value of
+   * indendation prior to that tag and 2) the index of that tag on that line -
+   * eg a value of 2 indicates the partial is the third tag on this line.
+   */
+  function parseTemplate (template, tags) {
+    if (!template)
+      return [];
+    var lineHasNonSpace = false;
+    var sections = [];     // Stack to hold section tokens
+    var tokens = [];       // Buffer to hold the tokens
+    var spaces = [];       // Indices of whitespace tokens on the current line
+    var hasTag = false;    // Is there a {{tag}} on the current line?
+    var nonSpace = false;  // Is there a non-space char on the current line?
+    var indentation = '';  // Tracks indentation for tags that use it
+    var tagIndex = 0;      // Stores a count of number of tags encountered on a line
+
+    // Strips all whitespace tokens array for the current line
+    // if there was a {{#tag}} on it and otherwise only space.
+    function stripSpace () {
+      if (hasTag && !nonSpace) {
+        while (spaces.length)
+          delete tokens[spaces.pop()];
+      } else {
+        spaces = [];
+      }
+
+      hasTag = false;
+      nonSpace = false;
+    }
+
+    var openingTagRe, closingTagRe, closingCurlyRe;
+    function compileTags (tagsToCompile) {
+      if (typeof tagsToCompile === 'string')
+        tagsToCompile = tagsToCompile.split(spaceRe, 2);
+
+      if (!isArray(tagsToCompile) || tagsToCompile.length !== 2)
+        throw new Error('Invalid tags: ' + tagsToCompile);
+
+      openingTagRe = new RegExp(escapeRegExp(tagsToCompile[0]) + '\\s*');
+      closingTagRe = new RegExp('\\s*' + escapeRegExp(tagsToCompile[1]));
+      closingCurlyRe = new RegExp('\\s*' + escapeRegExp('}' + tagsToCompile[1]));
+    }
+
+    compileTags(tags || mustache.tags);
+
+    var scanner = new Scanner(template);
+
+    var start, type, value, chr, token, openSection;
+    while (!scanner.eos()) {
+      start = scanner.pos;
+
+      // Match any text between tags.
+      value = scanner.scanUntil(openingTagRe);
+
+      if (value) {
+        for (var i = 0, valueLength = value.length; i < valueLength; ++i) {
+          chr = value.charAt(i);
+
+          if (isWhitespace(chr)) {
+            spaces.push(tokens.length);
+            indentation += chr;
+          } else {
+            nonSpace = true;
+            lineHasNonSpace = true;
+            indentation += ' ';
+          }
+
+          tokens.push([ 'text', chr, start, start + 1 ]);
+          start += 1;
+
+          // Check for whitespace on the current line.
+          if (chr === '\n') {
+            stripSpace();
+            indentation = '';
+            tagIndex = 0;
+            lineHasNonSpace = false;
+          }
+        }
+      }
+
+      // Match the opening tag.
+      if (!scanner.scan(openingTagRe))
+        break;
+
+      hasTag = true;
+
+      // Get the tag type.
+      type = scanner.scan(tagRe) || 'name';
+      scanner.scan(whiteRe);
+
+      // Get the tag value.
+      if (type === '=') {
+        value = scanner.scanUntil(equalsRe);
+        scanner.scan(equalsRe);
+        scanner.scanUntil(closingTagRe);
+      } else if (type === '{') {
+        value = scanner.scanUntil(closingCurlyRe);
+        scanner.scan(curlyRe);
+        scanner.scanUntil(closingTagRe);
+        type = '&';
+      } else {
+        value = scanner.scanUntil(closingTagRe);
+      }
+
+      // Match the closing tag.
+      if (!scanner.scan(closingTagRe))
+        throw new Error('Unclosed tag at ' + scanner.pos);
+
+      if (type == '>') {
+        token = [ type, value, start, scanner.pos, indentation, tagIndex, lineHasNonSpace ];
+      } else {
+        token = [ type, value, start, scanner.pos ];
+      }
+      tagIndex++;
+      tokens.push(token);
+
+      if (type === '#' || type === '^') {
+        sections.push(token);
+      } else if (type === '/') {
+        // Check section nesting.
+        openSection = sections.pop();
+
+        if (!openSection)
+          throw new Error('Unopened section "' + value + '" at ' + start);
+
+        if (openSection[1] !== value)
+          throw new Error('Unclosed section "' + openSection[1] + '" at ' + start);
+      } else if (type === 'name' || type === '{' || type === '&') {
+        nonSpace = true;
+      } else if (type === '=') {
+        // Set the tags for the next time around.
+        compileTags(value);
+      }
+    }
+
+    stripSpace();
+
+    // Make sure there are no open sections when we're done.
+    openSection = sections.pop();
+
+    if (openSection)
+      throw new Error('Unclosed section "' + openSection[1] + '" at ' + scanner.pos);
+
+    return nestTokens(squashTokens(tokens));
+  }
+
+  /**
+   * Combines the values of consecutive text tokens in the given `tokens` array
+   * to a single token.
+   */
+  function squashTokens (tokens) {
+    var squashedTokens = [];
+
+    var token, lastToken;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      token = tokens[i];
+
+      if (token) {
+        if (token[0] === 'text' && lastToken && lastToken[0] === 'text') {
+          lastToken[1] += token[1];
+          lastToken[3] = token[3];
+        } else {
+          squashedTokens.push(token);
+          lastToken = token;
+        }
+      }
+    }
+
+    return squashedTokens;
+  }
+
+  /**
+   * Forms the given array of `tokens` into a nested tree structure where
+   * tokens that represent a section have two additional items: 1) an array of
+   * all tokens that appear in that section and 2) the index in the original
+   * template that represents the end of that section.
+   */
+  function nestTokens (tokens) {
+    var nestedTokens = [];
+    var collector = nestedTokens;
+    var sections = [];
+
+    var token, section;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      token = tokens[i];
+
+      switch (token[0]) {
+        case '#':
+        case '^':
+          collector.push(token);
+          sections.push(token);
+          collector = token[4] = [];
+          break;
+        case '/':
+          section = sections.pop();
+          section[5] = token[2];
+          collector = sections.length > 0 ? sections[sections.length - 1][4] : nestedTokens;
+          break;
+        default:
+          collector.push(token);
+      }
+    }
+
+    return nestedTokens;
+  }
+
+  /**
+   * A simple string scanner that is used by the template parser to find
+   * tokens in template strings.
+   */
+  function Scanner (string) {
+    this.string = string;
+    this.tail = string;
+    this.pos = 0;
+  }
+
+  /**
+   * Returns `true` if the tail is empty (end of string).
+   */
+  Scanner.prototype.eos = function eos () {
+    return this.tail === '';
+  };
+
+  /**
+   * Tries to match the given regular expression at the current position.
+   * Returns the matched text if it can match, the empty string otherwise.
+   */
+  Scanner.prototype.scan = function scan (re) {
+    var match = this.tail.match(re);
+
+    if (!match || match.index !== 0)
+      return '';
+
+    var string = match[0];
+
+    this.tail = this.tail.substring(string.length);
+    this.pos += string.length;
+
+    return string;
+  };
+
+  /**
+   * Skips all text until the given regular expression can be matched. Returns
+   * the skipped string, which is the entire tail if no match can be made.
+   */
+  Scanner.prototype.scanUntil = function scanUntil (re) {
+    var index = this.tail.search(re), match;
+
+    switch (index) {
+      case -1:
+        match = this.tail;
+        this.tail = '';
+        break;
+      case 0:
+        match = '';
+        break;
+      default:
+        match = this.tail.substring(0, index);
+        this.tail = this.tail.substring(index);
+    }
+
+    this.pos += match.length;
+
+    return match;
+  };
+
+  /**
+   * Represents a rendering context by wrapping a view object and
+   * maintaining a reference to the parent context.
+   */
+  function Context (view, parentContext) {
+    this.view = view;
+    this.cache = { '.': this.view };
+    this.parent = parentContext;
+  }
+
+  /**
+   * Creates a new context using the given view with this context
+   * as the parent.
+   */
+  Context.prototype.push = function push (view) {
+    return new Context(view, this);
+  };
+
+  /**
+   * Returns the value of the given name in this context, traversing
+   * up the context hierarchy if the value is absent in this context's view.
+   */
+  Context.prototype.lookup = function lookup (name) {
+    var cache = this.cache;
+
+    var value;
+    if (cache.hasOwnProperty(name)) {
+      value = cache[name];
+    } else {
+      var context = this, intermediateValue, names, index, lookupHit = false;
+
+      while (context) {
+        if (name.indexOf('.') > 0) {
+          intermediateValue = context.view;
+          names = name.split('.');
+          index = 0;
+
+          /**
+           * Using the dot notion path in `name`, we descend through the
+           * nested objects.
+           *
+           * To be certain that the lookup has been successful, we have to
+           * check if the last object in the path actually has the property
+           * we are looking for. We store the result in `lookupHit`.
+           *
+           * This is specially necessary for when the value has been set to
+           * `undefined` and we want to avoid looking up parent contexts.
+           *
+           * In the case where dot notation is used, we consider the lookup
+           * to be successful even if the last "object" in the path is
+           * not actually an object but a primitive (e.g., a string, or an
+           * integer), because it is sometimes useful to access a property
+           * of an autoboxed primitive, such as the length of a string.
+           **/
+          while (intermediateValue != null && index < names.length) {
+            if (index === names.length - 1)
+              lookupHit = (
+                hasProperty(intermediateValue, names[index])
+                || primitiveHasOwnProperty(intermediateValue, names[index])
+              );
+
+            intermediateValue = intermediateValue[names[index++]];
+          }
+        } else {
+          intermediateValue = context.view[name];
+
+          /**
+           * Only checking against `hasProperty`, which always returns `false` if
+           * `context.view` is not an object. Deliberately omitting the check
+           * against `primitiveHasOwnProperty` if dot notation is not used.
+           *
+           * Consider this example:
+           * ```
+           * Mustache.render("The length of a football field is {{#length}}{{length}}{{/length}}.", {length: "100 yards"})
+           * ```
+           *
+           * If we were to check also against `primitiveHasOwnProperty`, as we do
+           * in the dot notation case, then render call would return:
+           *
+           * "The length of a football field is 9."
+           *
+           * rather than the expected:
+           *
+           * "The length of a football field is 100 yards."
+           **/
+          lookupHit = hasProperty(context.view, name);
+        }
+
+        if (lookupHit) {
+          value = intermediateValue;
+          break;
+        }
+
+        context = context.parent;
+      }
+
+      cache[name] = value;
+    }
+
+    if (isFunction(value))
+      value = value.call(this.view);
+
+    return value;
+  };
+
+  /**
+   * A Writer knows how to take a stream of tokens and render them to a
+   * string, given a context. It also maintains a cache of templates to
+   * avoid the need to parse the same template twice.
+   */
+  function Writer () {
+    this.templateCache = {
+      _cache: {},
+      set: function set (key, value) {
+        this._cache[key] = value;
+      },
+      get: function get (key) {
+        return this._cache[key];
+      },
+      clear: function clear () {
+        this._cache = {};
+      }
+    };
+  }
+
+  /**
+   * Clears all cached templates in this writer.
+   */
+  Writer.prototype.clearCache = function clearCache () {
+    if (typeof this.templateCache !== 'undefined') {
+      this.templateCache.clear();
+    }
+  };
+
+  /**
+   * Parses and caches the given `template` according to the given `tags` or
+   * `mustache.tags` if `tags` is omitted,  and returns the array of tokens
+   * that is generated from the parse.
+   */
+  Writer.prototype.parse = function parse (template, tags) {
+    var cache = this.templateCache;
+    var cacheKey = template + ':' + (tags || mustache.tags).join(':');
+    var isCacheEnabled = typeof cache !== 'undefined';
+    var tokens = isCacheEnabled ? cache.get(cacheKey) : undefined;
+
+    if (tokens == undefined) {
+      tokens = parseTemplate(template, tags);
+      isCacheEnabled && cache.set(cacheKey, tokens);
+    }
+    return tokens;
+  };
+
+  /**
+   * High-level method that is used to render the given `template` with
+   * the given `view`.
+   *
+   * The optional `partials` argument may be an object that contains the
+   * names and templates of partials that are used in the template. It may
+   * also be a function that is used to load partial templates on the fly
+   * that takes a single argument: the name of the partial.
+   *
+   * If the optional `config` argument is given here, then it should be an
+   * object with a `tags` attribute or an `escape` attribute or both.
+   * If an array is passed, then it will be interpreted the same way as
+   * a `tags` attribute on a `config` object.
+   *
+   * The `tags` attribute of a `config` object must be an array with two
+   * string values: the opening and closing tags used in the template (e.g.
+   * [ "<%", "%>" ]). The default is to mustache.tags.
+   *
+   * The `escape` attribute of a `config` object must be a function which
+   * accepts a string as input and outputs a safely escaped string.
+   * If an `escape` function is not provided, then an HTML-safe string
+   * escaping function is used as the default.
+   */
+  Writer.prototype.render = function render (template, view, partials, config) {
+    var tags = this.getConfigTags(config);
+    var tokens = this.parse(template, tags);
+    var context = (view instanceof Context) ? view : new Context(view, undefined);
+    return this.renderTokens(tokens, context, partials, template, config);
+  };
+
+  /**
+   * Low-level method that renders the given array of `tokens` using
+   * the given `context` and `partials`.
+   *
+   * Note: The `originalTemplate` is only ever used to extract the portion
+   * of the original template that was contained in a higher-order section.
+   * If the template doesn't use higher-order sections, this argument may
+   * be omitted.
+   */
+  Writer.prototype.renderTokens = function renderTokens (tokens, context, partials, originalTemplate, config) {
+    var buffer = '';
+
+    var token, symbol, value;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      value = undefined;
+      token = tokens[i];
+      symbol = token[0];
+
+      if (symbol === '#') value = this.renderSection(token, context, partials, originalTemplate, config);
+      else if (symbol === '^') value = this.renderInverted(token, context, partials, originalTemplate, config);
+      else if (symbol === '>') value = this.renderPartial(token, context, partials, config);
+      else if (symbol === '&') value = this.unescapedValue(token, context);
+      else if (symbol === 'name') value = this.escapedValue(token, context, config);
+      else if (symbol === 'text') value = this.rawValue(token);
+
+      if (value !== undefined)
+        buffer += value;
+    }
+
+    return buffer;
+  };
+
+  Writer.prototype.renderSection = function renderSection (token, context, partials, originalTemplate, config) {
+    var self = this;
+    var buffer = '';
+    var value = context.lookup(token[1]);
+
+    // This function is used to render an arbitrary template
+    // in the current context by higher-order sections.
+    function subRender (template) {
+      return self.render(template, context, partials, config);
+    }
+
+    if (!value) return;
+
+    if (isArray(value)) {
+      for (var j = 0, valueLength = value.length; j < valueLength; ++j) {
+        buffer += this.renderTokens(token[4], context.push(value[j]), partials, originalTemplate, config);
+      }
+    } else if (typeof value === 'object' || typeof value === 'string' || typeof value === 'number') {
+      buffer += this.renderTokens(token[4], context.push(value), partials, originalTemplate, config);
+    } else if (isFunction(value)) {
+      if (typeof originalTemplate !== 'string')
+        throw new Error('Cannot use higher-order sections without the original template');
+
+      // Extract the portion of the original template that the section contains.
+      value = value.call(context.view, originalTemplate.slice(token[3], token[5]), subRender);
+
+      if (value != null)
+        buffer += value;
+    } else {
+      buffer += this.renderTokens(token[4], context, partials, originalTemplate, config);
+    }
+    return buffer;
+  };
+
+  Writer.prototype.renderInverted = function renderInverted (token, context, partials, originalTemplate, config) {
+    var value = context.lookup(token[1]);
+
+    // Use JavaScript's definition of falsy. Include empty arrays.
+    // See https://github.com/janl/mustache.js/issues/186
+    if (!value || (isArray(value) && value.length === 0))
+      return this.renderTokens(token[4], context, partials, originalTemplate, config);
+  };
+
+  Writer.prototype.indentPartial = function indentPartial (partial, indentation, lineHasNonSpace) {
+    var filteredIndentation = indentation.replace(/[^ \t]/g, '');
+    var partialByNl = partial.split('\n');
+    for (var i = 0; i < partialByNl.length; i++) {
+      if (partialByNl[i].length && (i > 0 || !lineHasNonSpace)) {
+        partialByNl[i] = filteredIndentation + partialByNl[i];
+      }
+    }
+    return partialByNl.join('\n');
+  };
+
+  Writer.prototype.renderPartial = function renderPartial (token, context, partials, config) {
+    if (!partials) return;
+    var tags = this.getConfigTags(config);
+
+    var value = isFunction(partials) ? partials(token[1]) : partials[token[1]];
+    if (value != null) {
+      var lineHasNonSpace = token[6];
+      var tagIndex = token[5];
+      var indentation = token[4];
+      var indentedValue = value;
+      if (tagIndex == 0 && indentation) {
+        indentedValue = this.indentPartial(value, indentation, lineHasNonSpace);
+      }
+      var tokens = this.parse(indentedValue, tags);
+      return this.renderTokens(tokens, context, partials, indentedValue, config);
+    }
+  };
+
+  Writer.prototype.unescapedValue = function unescapedValue (token, context) {
+    var value = context.lookup(token[1]);
+    if (value != null)
+      return value;
+  };
+
+  Writer.prototype.escapedValue = function escapedValue (token, context, config) {
+    var escape = this.getConfigEscape(config) || mustache.escape;
+    var value = context.lookup(token[1]);
+    if (value != null)
+      return (typeof value === 'number' && escape === mustache.escape) ? String(value) : escape(value);
+  };
+
+  Writer.prototype.rawValue = function rawValue (token) {
+    return token[1];
+  };
+
+  Writer.prototype.getConfigTags = function getConfigTags (config) {
+    if (isArray(config)) {
+      return config;
+    }
+    else if (config && typeof config === 'object') {
+      return config.tags;
+    }
+    else {
+      return undefined;
+    }
+  };
+
+  Writer.prototype.getConfigEscape = function getConfigEscape (config) {
+    if (config && typeof config === 'object' && !isArray(config)) {
+      return config.escape;
+    }
+    else {
+      return undefined;
+    }
+  };
+
+  var mustache = {
+    name: 'mustache.js',
+    version: '4.2.0',
+    tags: [ '{{', '}}' ],
+    clearCache: undefined,
+    escape: undefined,
+    parse: undefined,
+    render: undefined,
+    Scanner: undefined,
+    Context: undefined,
+    Writer: undefined,
+    /**
+     * Allows a user to override the default caching strategy, by providing an
+     * object with set, get and clear methods. This can also be used to disable
+     * the cache by setting it to the literal `undefined`.
+     */
+    set templateCache (cache) {
+      defaultWriter.templateCache = cache;
+    },
+    /**
+     * Gets the default or overridden caching object from the default writer.
+     */
+    get templateCache () {
+      return defaultWriter.templateCache;
+    }
+  };
+
+  // All high-level mustache.* functions use this writer.
+  var defaultWriter = new Writer();
+
+  /**
+   * Clears all cached templates in the default writer.
+   */
+  mustache.clearCache = function clearCache () {
+    return defaultWriter.clearCache();
+  };
+
+  /**
+   * Parses and caches the given template in the default writer and returns the
+   * array of tokens it contains. Doing this ahead of time avoids the need to
+   * parse templates on the fly as they are rendered.
+   */
+  mustache.parse = function parse (template, tags) {
+    return defaultWriter.parse(template, tags);
+  };
+
+  /**
+   * Renders the `template` with the given `view`, `partials`, and `config`
+   * using the default writer.
+   */
+  mustache.render = function render (template, view, partials, config) {
+    if (typeof template !== 'string') {
+      throw new TypeError('Invalid template! Template should be a "string" ' +
+                          'but "' + typeStr(template) + '" was given as the first ' +
+                          'argument for mustache#render(template, view, partials)');
+    }
+
+    return defaultWriter.render(template, view, partials, config);
+  };
+
+  // Export the escaping function so that the user may override it.
+  // See https://github.com/janl/mustache.js/issues/244
+  mustache.escape = escapeHtml;
+
+  // Export these mainly for testing, but also for advanced usage.
+  mustache.Scanner = Scanner;
+  mustache.Context = Context;
+  mustache.Writer = Writer;
+
+  return mustache;
+
+})));
+</script><script >// document elements
+const database = document.getElementById('database');
+const articleList = document.getElementById('articleList')
+
+// nicknames
+const articleListAttr = (article_title) => `li[article_title='${article_title}']`
+const articleAttr = (article_title) => `article[article_title='${article_title}']`
+
+// templates
+const articleTmpl = document.getElementById('articleTmpl').innerHTML;
+
+function calibrateEventHandlers() {
+  // articleList.querySelectorAll('.delete_btn').forEach(el => {
+  //   console.log(el.parentElement)
+  //   el.addEventListener('click', function() {
+  //     delete_article(el.attributes.getNamedItem("article_title"))
+  //     console.log(el.attributes.getNamedItem("article_title"))
+  //   })
+  // })
+}
+
+
+function remove_article_from_database(article_title) {
+  console.log(articleAttr(article_title))
+  database.querySelector(articleAttr(article_title)).remove()
+}
+
+function remove_article_from_article_list(article_title) {
+  console.log(articleListAttr(article_title))
+  articleList.querySelector(articleListAttr(article_title)).remove()
+}
+
+function delete_article(article_title) {
+  if (!article_exists(article_title)) {
+    console.log('no article exists')
+    return
+  }
+
+  remove_article_from_article_list(article_title)
+  remove_article_from_database(article_title)
+}
+
+function article_exists(article_title) {
+  return database.querySelectorAll(articleAttr(article_title)).length
+}
+
+function addPostoToDatabase(article_title, article_content) {
+  const newArticle = Mustache.render(articleTmpl, {
+    article_title,
+    article_content,
+  });
+
+  database.insertAdjacentHTML("beforeend", newArticle);
+}
+
+function addPostToArticleList(article_title) {
+  const template = document.getElementById('articleLiTmpl').innerHTML;
+  const newArticleLi = Mustache.render(template, {
+    article_title,
+  });
+
+  articleList.insertAdjacentHTML("beforeend", newArticleLi);
+}
+
+function addPost() {
+  let article_title = document.getElementById('editorTitle').value;
+  const content = document.getElementById('editorContent').innerHTML;
+
+  if (!article_title || !content) {
+    alert('Please enter both a title and content for your post.');
+    return;
+  }
+
+  if (article_exists(article_title)) {
+    article_title = `${article_title}_copy`
+    document.getElementById('editorTitle').value = article_title
+  }
+  addPostoToDatabase(article_title, content)
+  addPostToArticleList(article_title)
+
+  calibrateEventHandlers()
+}
+
+// Helper function to escape HTML to prevent XSS
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+function saveBlog() {
+  // Get the entire HTML content of the current document
+  // This will include any dynamically added posts
+  const htmlContent = document.documentElement.outerHTML;
+
+  // Create a Blob from the HTML content
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+
+  // Create a URL for the Blob
+  const url = URL.createObjectURL(blob);
+
+  // Create a temporary anchor (<a>) element
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'my_self_saving_blog.html'; // Suggested filename for the downloaded file
+
+  // Append the anchor to the body (it doesn't need to be visible)
+  document.body.appendChild(a);
+
+  // Programmatically click the anchor to trigger the download
+  a.click();
+
+  // Clean up by revoking the Object URL and removing the anchor
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  alert('Your blog has been saved! Please overwrite the old file.');
+}
+
+
+// config
+var options = {
+  // toolbar: document.getElementById('custom-toolbar'),
+  editor: document.querySelector('[data-toggle="pen"]'),
+  debug: true,
+  list: [
+    'insertimage', 'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+    'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
+  ]
+};
+
+// create editor
+var pen = window.pen = new Pen(options);
+
+pen.focus();
+
+// toggle editor mode
+document.querySelector('#mode').addEventListener('click', function() {
+  var text = this.textContent;
+
+  if (this.classList.contains('disabled')) {
+    this.classList.remove('disabled');
+    pen.rebuild();
+  } else {
+    this.classList.add('disabled');
+    pen.destroy();
+  }
+});
+
+// export content as markdown
+document.querySelector('#tomd').addEventListener('click', function() {
+  var text = pen.toMd();
+  document.body.innerHTML = '<a href="javascript:location.reload()">&larr;back to editor</a><br><br><pre>' + text + '</pre>';
+});
+
+// toggle editor mode
+document.querySelector('#hinted').addEventListener('click', function() {
+  var pen = document.querySelector('.pen')
+
+  if (pen.classList.contains('hinted')) {
+    pen.classList.remove('hinted');
+    this.classList.add('disabled');
+  } else {
+    pen.classList.add('hinted');
+    this.classList.remove('disabled');
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Code to execute when the DOM is ready
+  console.log("DOM is ready!");
+  calibrateEventHandlers()
+});
+
+// function populateArticleList() {
+//   const databaseDiv = document.getElementById('database'); // Get the div with ID "database"
+//   const articleList = document.getElementById('articleList'); // Get the div with ID "database"
+//
+//   if (!databaseDiv) {
+//     console.error('Div with ID "database" not found.');
+//     return;
+//   }
+//
+//   const articles = databaseDiv.querySelectorAll('article'); // Find all <article> elements within the div
+//
+//   const ul = document.createElement('ul');
+//
+//   articles.forEach(article => {
+//     const li = document.createElement('li'); // Create a new list item
+//     const articleTitle = article.innerText.trim().split('\n')[0]; // Takes the first line as title
+//
+//     li.textContent = articleTitle; // Set the list item's text content to the article's title
+//     ul.appendChild(li); // Add the list item to the unordered list
+//   });
+//
+//   articleList.appendChild(ul);
+// }
+
+// populateArticleList();
+
+</script></body></html>
