@@ -121,20 +121,26 @@ aside
 button {
     padding: 10px 20px;
     font-size: 16px;
-            cursor: pointer;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        #saveButton {
-            background-color: #007bff;
-            margin-top: 20px;
-        }
-        #saveButton:hover {
-            background-color: #0056b3;
-        }
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #218838;
+}
+#saveButton {
+    background-color: #007bff;
+    margin-top: 20px;
+}
+#saveButton:hover {
+    background-color: #0056b3;
+}
+#editorContent{
+  background-color: white;
+  border-radius: 20px 20px;
+  padding: 10px;
+  border: 1px solid;
+}

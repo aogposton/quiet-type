@@ -1,16 +1,14 @@
 <div id="document" class="" style="display:block;">
-  <aside class="column " style="position:fixed; height:100%; background-color: blue;">
+  <aside class="column " style="position:fixed; height:100%; ">
+    <h2>Articles</h2>
+    <div id="articleList"></div>
+  </aside>
+  <div class="column" style="margin-left:220px; margin-right:20px;">
     <div class="container">
       <button id="addPostBtn" onclick="addPost()">Add Post</button>
       <button id="saveButton" onclick="saveBlog()">Save Blog (Download Updated Page)</button>
-      <span id="mode" class="icon-mode"></span>
-      <span id="hinted" class="icon-pre disabled" title="Toggle Markdown Hints"></span>
-      <span id="tomd" title="to markdown">MD</span>
     </div>
-    <div id="articleList">
-    </div>
-  </aside>
-  <div class="column" style="margin-left:200px;">
+
     <input id="editorTitle" />
     <div id="editorContent" data-toggle="pen" data-placeholder="im a placeholder">
       <h2>Enjoy live editing (+markdown)</h2>

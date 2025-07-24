@@ -1,22 +1,22 @@
 // document elements
 const database = document.getElementById('database');
 const articleList = document.getElementById('articleList')
+const editorNode = document.querySelector('#editorContent')
+const editorTitleNode = document.querySelector('#editorTitle')
 
 // nicknames
 const articleListAttr = (article_title) => `li[article_title='${article_title}']`
 const articleAttr = (article_title) => `article[article_title='${article_title}']`
-
+const getArticleNode = (article_title) => database.querySelector(articleAttr(article_title))
 // templates
 const articleTmpl = document.getElementById('articleTmpl').innerHTML;
 
 
 function remove_article_from_database(article_title) {
-  console.log(articleAttr(article_title))
-  database.querySelector(articleAttr(article_title)).remove()
+  getArticleNode(article_title).remove()
 }
 
 function remove_article_from_article_list(article_title) {
-  console.log(articleListAttr(article_title))
   articleList.querySelector(articleListAttr(article_title)).remove()
 }
 
@@ -28,6 +28,11 @@ function delete_article(article_title) {
 
   remove_article_from_article_list(article_title)
   remove_article_from_database(article_title)
+}
+
+function select_article(article_title) {
+  const content = getArticleNode(article_title).innerHTML
+  editorNode.innerHTML = content
 }
 
 function article_exists(article_title) {
@@ -53,7 +58,7 @@ function addPostToArticleList(article_title) {
 }
 
 function addPost() {
-  let article_title = document.getElementById('editorTitle').value;
+  let article_title = editorTitle.value;
   const content = document.getElementById('editorContent').innerHTML;
 
   if (!article_title || !content) {
@@ -68,7 +73,6 @@ function addPost() {
   addPostoToDatabase(article_title, content)
   addPostToArticleList(article_title)
 
-  calibrateEventHandlers()
 }
 
 // Helper function to escape HTML to prevent XSS
@@ -107,84 +111,58 @@ function saveBlog() {
   alert('Your blog has been saved! Please overwrite the old file.');
 }
 
+function initEditor() {
 
-// config
-var options = {
-  // toolbar: document.getElementById('custom-toolbar'),
-  editor: document.querySelector('[data-toggle="pen"]'),
-  debug: true,
-  list: [
-    'insertimage', 'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
-    'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
-  ]
-};
+  // config
+  var options = {
+    // toolbar: document.getElementById('custom-toolbar'),
+    editor: document.querySelector('[data-toggle="pen"]'),
+    debug: true,
+    list: [
+      'insertimage', 'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+      'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
+    ]
+  };
 
-// create editor
-var pen = window.pen = new Pen(options);
-
-pen.focus();
-
-// toggle editor mode
-document.querySelector('#mode').addEventListener('click', function() {
-  var text = this.textContent;
-
-  if (this.classList.contains('disabled')) {
-    this.classList.remove('disabled');
-    pen.rebuild();
-  } else {
-    this.classList.add('disabled');
-    pen.destroy();
-  }
-});
-
-// export content as markdown
-document.querySelector('#tomd').addEventListener('click', function() {
-  var text = pen.toMd();
-  document.body.innerHTML = '<a href="javascript:location.reload()">&larr;back to editor</a><br><br><pre>' + text + '</pre>';
-});
+  // create editor
+  var pen = window.pen = new Pen(options);
+  // pen.focus();
+}
 
 // toggle editor mode
-document.querySelector('#hinted').addEventListener('click', function() {
-  var pen = document.querySelector('.pen')
+// document.querySelector('#mode').addEventListener('click', function() {
+//   var text = this.textContent;
+//
+//   if (this.classList.contains('disabled')) {
+//     this.classList.remove('disabled');
+//     pen.rebuild();
+//   } else {
+//     this.classList.add('disabled');
+//     pen.destroy();
+//   }
+// });
 
-  if (pen.classList.contains('hinted')) {
-    pen.classList.remove('hinted');
-    this.classList.add('disabled');
-  } else {
-    pen.classList.add('hinted');
-    this.classList.remove('disabled');
-  }
-});
+// // export content as markdown
+// document.querySelector('#tomd').addEventListener('click', function() {
+//   var text = pen.toMd();
+//   document.body.innerHTML = '<a href="javascript:location.reload()">&larr;back to editor</a><br><br><pre>' + text + '</pre>';
+// });
+//
+// // toggle editor mode
+// document.querySelector('#hinted').addEventListener('click', function() {
+//   var pen = document.querySelector('.pen')
+//
+//   if (pen.classList.contains('hinted')) {
+//     pen.classList.remove('hinted');
+//     this.classList.add('disabled');
+//   } else {
+//     pen.classList.add('hinted');
+//     this.classList.remove('disabled');
+//   }
+// });
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Code to execute when the DOM is ready
   console.log("DOM is ready!");
-  calibrateEventHandlers()
+  initEditor()
 });
-
-// function populateArticleList() {
-//   const databaseDiv = document.getElementById('database'); // Get the div with ID "database"
-//   const articleList = document.getElementById('articleList'); // Get the div with ID "database"
-//
-//   if (!databaseDiv) {
-//     console.error('Div with ID "database" not found.');
-//     return;
-//   }
-//
-//   const articles = databaseDiv.querySelectorAll('article'); // Find all <article> elements within the div
-//
-//   const ul = document.createElement('ul');
-//
-//   articles.forEach(article => {
-//     const li = document.createElement('li'); // Create a new list item
-//     const articleTitle = article.innerText.trim().split('\n')[0]; // Takes the first line as title
-//
-//     li.textContent = articleTitle; // Set the list item's text content to the article's title
-//     ul.appendChild(li); // Add the list item to the unordered list
-//   });
-//
-//   articleList.appendChild(ul);
-// }
-
-// populateArticleList();
 
